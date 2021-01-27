@@ -16,7 +16,7 @@ The data folder contains an R markdown file with a script to prepare the Segerst
 
 ## Pluto notebooks
 
-The pluto_notebooke folder contains Pluto notebooks for the analyses of the Segerstolpe dataset, both to generate the data in the body of the manuscript and generate the supplement's data.
+The pluto_notebook folder contains Pluto notebooks for the analyses of the Segerstolpe dataset, both to generate the data in the body of the manuscript and generate the supplement's data.
 
 * scDBM_notebook.jl
 * supplement_scDBM_notebook.jl
