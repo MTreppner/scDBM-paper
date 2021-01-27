@@ -23,7 +23,7 @@ The pluto_notebook folder contains Pluto notebooks for the analyses of the Seger
 
 ## Plotting  
 
-The plotting order contains the R markdown scripts to reproduce both the main figures and the supplementary figures.
+The plotting folder contains the R markdown scripts to reproduce both the main figures and the supplementary figures.
 
 * figure_2.Rmd
 * figure_3.Rmd
