@@ -1,0 +1,149 @@
+---
+title: "Synthetic Single-Cell RNA-Sequencing Data from Small Pilot Studies using Deep Generative Models"
+subtitle: "Figure S6"
+author:
+- name: Martin Treppner
+  affiliation: Institute of Medical Biometry and Statistics, Faculty of Medicine and Medical Center - University of Freiburg
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+vignette: >
+output:
+  BiocStyle::html_document:
+    number_sections: yes
+    toc: true
+    toc_depth: 2
+    bibliography: bibliography.bib
+---
+
+# Loading required packages  
+
+```{r, warning=FALSE, message=FALSE}
+options(repos="https://CRAN.R-project.org")
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load(dplyr,cowplot,ggplot2,tidyverse,gt, uwot)
+```
+
+# Theme  
+
+```{r, warning=FALSE, message=FALSE}
+dviz_font_family <- ""
+theme_dviz_open <- function(font_size = 14, font_family = dviz_font_family, line_size = .5,
+                          rel_small = 12/14, rel_tiny = 11/14, rel_large = 16/14) {
+  half_line <- font_size / 2
+  
+  cowplot::theme_half_open(font_size = font_size, font_family = font_family, line_size = line_size,
+                           rel_small = rel_small, rel_tiny = rel_tiny, rel_large = rel_large)  %+replace%
+    theme(
+      plot.margin = margin(half_line/2, 1.5, half_line/2, 1.5),
+      complete = TRUE
+    )
+}
+```
+
+# Read original data and gene names  
+
+```{r, warning=FALSE, message=FALSE}
+orig_dat <- read.csv("/Users/martintreppner/Desktop/notebook_test/segerstolpe_hvg.csv")
+orig_dat <- orig_dat[,2:ncol(orig_dat)] %>% t() %>% as.data.frame()
+gene_names <- read.csv("/Users/martintreppner/Desktop/notebook_test/segerstolpe_gene_names.csv")
+gene_names <- gene_names[,2]
+colnames(orig_dat) <- gene_names
+```
+
+# Read synthetic data  and apply UMAP  
+
+```{r, warning=FALSE, message=FALSE}
+scdbm_dat <- read.csv("/Users/martintreppner/Desktop/notebook_test/gen_data_scdbm384_seed24.csv")
+scvi_dat <- read.csv("/Users/martintreppner/Desktop/notebook_test/gen_data_scvi384_seed94.csv")
+  
+colnames(scdbm_dat) <- gene_names
+colnames(scvi_dat) <- gene_names
+  
+scdbm_plot <- umap(rbind(orig_dat,scdbm_dat))
+scdbm_plot <- as.data.frame(scdbm_plot)
+scdbm_plot$model <- c(rep("Original", nrow(orig_dat)), rep("scDBM", nrow(scdbm_dat)))
+scdbm_plot$model <- as.factor(scdbm_plot$model)
+scdbm_plot$cells <- "384"
+  
+scvi_plot <- umap(rbind(orig_dat,scvi_dat))
+scvi_plot <- as.data.frame(scvi_plot)
+scvi_plot$model <- c(rep("Original", nrow(orig_dat)), rep("scVI", nrow(scvi_dat)))
+scvi_plot$model <- as.factor(scvi_plot$model)
+scvi_plot$cells <- "384"
+
+Iter <- c("768", "1152", "1536", "1920")
+for(i in 1:length(Iter)){
+  scdbm_dat <- read.csv(paste("/Users/martintreppner/Desktop/notebook_test/gen_data_scdbm",Iter[i],"_seed24.csv", sep = ""))
+  scvi_dat <- read.csv(paste("/Users/martintreppner/Desktop/notebook_test/gen_data_scvi",Iter[i],"_seed94.csv", sep = ""))
+  
+  colnames(scdbm_dat) <- gene_names
+  colnames(scvi_dat) <- gene_names
+  
+  scdbm_umap <- umap(rbind(orig_dat,scdbm_dat))
+  scdbm_umap <- as.data.frame(scdbm_umap)
+  scdbm_umap$model <- c(rep("Original", nrow(orig_dat)), rep("scDBM", nrow(scdbm_dat)))
+  scdbm_umap$model <- as.factor(scdbm_umap$model)
+  scdbm_umap$cells <- Iter[i]
+  
+  scvi_umap <- umap(rbind(orig_dat,scvi_dat))
+  scvi_umap <- as.data.frame(scvi_umap)
+  scvi_umap$model <- c(rep("Original", nrow(orig_dat)), rep("scVI", nrow(scvi_dat)))
+  scvi_umap$model <- as.factor(scvi_umap$model)
+  scvi_umap$cells <- Iter[i]
+  
+  scdbm_plot <- rbind(scdbm_plot, scdbm_umap)
+  scvi_plot <- rbind(scvi_plot, scvi_umap)
+}
+scdbm_plot$cells <- factor(scdbm_plot$cells, levels = c("384", "768", "1152", "1536", "1920"))
+scdbm_plot$cells <- plyr::revalue(scdbm_plot$cells, 
+                                  c("384" = "1 Plate", 
+                                    "768" = "2 Plates", 
+                                    "1152" = "3 Plates", 
+                                    "1536" = "4 Plates", 
+                                    "1920" = "5 Plates"))
+
+scvi_plot$cells <- factor(scvi_plot$cells, levels = c("384", "768", "1152", "1536", "1920"))
+scvi_plot$cells <- plyr::revalue(scvi_plot$cells, 
+                                 c("384" = "1 Plate", 
+                                   "768" = "2 Plates", 
+                                   "1152" = "3 Plates", 
+                                   "1536" = "4 Plates", 
+                                   "1920" = "5 Plates"))
+```
+
+# Plotting  
+
+```{r}
+p <- ggplot(scdbm_plot, aes(x=V1, y=V2, color=model)) + 
+    geom_point(size=2) +
+    theme_dviz_open() +
+    scale_color_manual(values=c("lightgrey","#0072B2"), 
+                        labels = c("Original", "scDBM")) +
+    theme(legend.title=element_blank(), legend.position = "bottom", legend.justification = "center") +
+    labs(x = "UMAP 1", y = "UMAP 2") +
+    facet_wrap(.~ cells, ncol = 2, strip.position = "top", scales = "fixed") +
+    theme(strip.background = element_blank())
+p
+```
+
+```{r}
+p1 <- ggplot(scvi_plot, aes(x=V1, y=V2, color=model)) + 
+    geom_point(size=2)  +
+    theme_dviz_open() +
+    scale_color_manual(values=c("lightgrey","#009E73"), 
+                        labels = c("Original", "scVI")) +
+    theme(legend.title=element_blank(), legend.position = "bottom", legend.justification = "center") +
+    labs(x = "UMAP 1", y = "UMAP 2") +
+    facet_wrap(.~ cells, ncol = 2, strip.position = "top", scales = "fixed") +
+    theme(strip.background = element_blank())
+p1
+```
+
+# Session info  
+
+```{r}
+sessionInfo()
+```
+
+
+
+
