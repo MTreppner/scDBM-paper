@@ -7,6 +7,7 @@ We specifically investigated two deep generative modeling approaches, VAEs and D
 
 ## Main requirements  
 Julia: 1.5.0
+scvi: 0.6.0
 
 ## References  
 
