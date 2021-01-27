@@ -6,7 +6,7 @@ Deep generative models, such as variational autoencoders (VAEs) or deep Boltzman
 We specifically investigated two deep generative modeling approaches, VAEs and DBMs. First, we considered single-cell variational inference (scVI) in two variants, generating samples from the posterior distribution, the standard approach, or the prior distribution. Second, we propose single-cell deep Boltzmann machines (scDBM). When considering the similarity of clustering results on synthetic data to ground-truth clustering, we find that the scVI (posterior) variant resulted in high variability, most likely due to amplifying artifacts of small datasets. All approaches showed mixed results for cell types with different abundance by overrepresenting highly abundant cell types and missing less abundant cell types. With increasing pilot dataset sizes, the proportions of the cells in each cluster became more similar to that of ground-truth data. We also showed that all approaches learn the univariate distribution of most genes, but problems occurred with bimodality. Across all analyses, in comparing 10x Genomics and Smart-seq2 technologies, we could show that for 10x datasets, which have higher sparsity, it is more challenging to make an inference from small to larger datasets. Overall, the results showed that generative deep learning approaches might be valuable for supporting the design of scRNA-seq experiments.
 
 ## Main requirements  
-Julia: 1.5.0
+Julia: 1.5.0\\
 scvi: 0.6.0
 
 ## References  
