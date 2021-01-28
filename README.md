@@ -21,6 +21,20 @@ The pluto_notebook folder contains Pluto notebooks for the analyses of the Seger
 * scDBM_notebook.jl
 * supplement_scDBM_notebook.jl
 
+To run the notebooks, use the following command and then select the appropriate notebook in the browser.
+
+```{julia}
+julia> import Pluto
+julia> Pluto.run()
+```
+
+Also, scVI must be installed. To do this, you can use Conda.jl and install the appropriate packages with the following commands:
+
+```{julia}
+julia> using Conda
+julia> Conda.add("scvi=0.6", channel="bioconda")
+```
+
 ## Plotting  
 
 The plotting folder contains the R markdown scripts to reproduce both the main figures and the supplementary figures.
@@ -29,6 +43,7 @@ The plotting folder contains the R markdown scripts to reproduce both the main f
 * figure_3.Rmd
 * figure_S4.Rmd
 * figure_S5.Rmd
+* figure_S6.Rmd
 * table_1.Rmd
 
 ## Main requirements  
