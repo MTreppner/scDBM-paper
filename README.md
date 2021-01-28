@@ -21,6 +21,11 @@ The pluto_notebook folder contains Pluto notebooks for the analyses of the Seger
 * scDBM_notebook.jl
 * supplement_scDBM_notebook.jl
 
+```{julia}
+import Pluto
+Pluto.run()
+```
+
 ## Plotting  
 
 The plotting folder contains the R markdown scripts to reproduce both the main figures and the supplementary figures.
