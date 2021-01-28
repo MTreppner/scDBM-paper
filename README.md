@@ -28,6 +28,13 @@ julia> import Pluto
 julia> Pluto.run()
 ```
 
+Also, scVI must be installed. To do this, you can use Conda.jl and install the appropriate packages with the following commands:
+
+```{julia}
+julia> using Conda
+julia> Conda.add("scvi=0.6", channel="bioconda")
+```
+
 ## Plotting  
 
 The plotting folder contains the R markdown scripts to reproduce both the main figures and the supplementary figures.
