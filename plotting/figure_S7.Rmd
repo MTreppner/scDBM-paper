@@ -1,6 +1,6 @@
 ---
 title: "Synthetic Single-Cell RNA-Sequencing Data from Small Pilot Studies using Deep Generative Models"
-subtitle: "Figure S6"
+subtitle: "Figure S7"
 author:
 - name: Martin Treppner
   affiliation: Institute of Medical Biometry and Statistics, Faculty of Medicine and Medical Center - University of Freiburg
@@ -58,13 +58,13 @@ scvi_dat <- read.csv("/Users/martintreppner/Desktop/notebook_test/gen_data_scvi3
 colnames(scdbm_dat) <- gene_names
 colnames(scvi_dat) <- gene_names
   
-scdbm_plot <- umap(rbind(orig_dat,scdbm_dat))
+scdbm_plot <- umap(rbind(orig_dat,scdbm_dat),n_neighbors = 30,metric = "cosine")
 scdbm_plot <- as.data.frame(scdbm_plot)
 scdbm_plot$model <- c(rep("Original", nrow(orig_dat)), rep("scDBM", nrow(scdbm_dat)))
 scdbm_plot$model <- as.factor(scdbm_plot$model)
 scdbm_plot$cells <- "384"
   
-scvi_plot <- umap(rbind(orig_dat,scvi_dat))
+scvi_plot <- umap(rbind(orig_dat,scvi_dat),n_neighbors = 30,metric = "cosine")
 scvi_plot <- as.data.frame(scvi_plot)
 scvi_plot$model <- c(rep("Original", nrow(orig_dat)), rep("scVI", nrow(scvi_dat)))
 scvi_plot$model <- as.factor(scvi_plot$model)
@@ -78,13 +78,13 @@ for(i in 1:length(Iter)){
   colnames(scdbm_dat) <- gene_names
   colnames(scvi_dat) <- gene_names
   
-  scdbm_umap <- umap(rbind(orig_dat,scdbm_dat))
+  scdbm_umap <- umap(rbind(orig_dat,scdbm_dat),n_neighbors = 30,metric = "cosine")
   scdbm_umap <- as.data.frame(scdbm_umap)
   scdbm_umap$model <- c(rep("Original", nrow(orig_dat)), rep("scDBM", nrow(scdbm_dat)))
   scdbm_umap$model <- as.factor(scdbm_umap$model)
   scdbm_umap$cells <- Iter[i]
   
-  scvi_umap <- umap(rbind(orig_dat,scvi_dat))
+  scvi_umap <- umap(rbind(orig_dat,scvi_dat),n_neighbors = 30,metric = "cosine")
   scvi_umap <- as.data.frame(scvi_umap)
   scvi_umap$model <- c(rep("Original", nrow(orig_dat)), rep("scVI", nrow(scvi_dat)))
   scvi_umap$model <- as.factor(scvi_umap$model)
@@ -114,7 +114,7 @@ scvi_plot$cells <- plyr::revalue(scvi_plot$cells,
 
 ```{r}
 p <- ggplot(scdbm_plot, aes(x=V1, y=V2, color=model)) + 
-    geom_point(size=2) +
+    geom_point(size=1) +
     theme_dviz_open() +
     scale_color_manual(values=c("lightgrey","#0072B2"), 
                         labels = c("Original", "scDBM")) +
@@ -127,7 +127,7 @@ p
 
 ```{r}
 p1 <- ggplot(scvi_plot, aes(x=V1, y=V2, color=model)) + 
-    geom_point(size=2)  +
+    geom_point(size=1)  +
     theme_dviz_open() +
     scale_color_manual(values=c("lightgrey","#009E73"), 
                         labels = c("Original", "scVI")) +
