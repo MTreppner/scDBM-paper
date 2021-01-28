@@ -43,7 +43,7 @@ The plotting folder contains the R markdown scripts to reproduce both the main f
 * figure_3.Rmd
 * figure_S4.Rmd
 * figure_S5.Rmd
-* figure_S6.Rmd
+* figure_S7.Rmd
 * table_1.Rmd
 
 ## Main requirements  
