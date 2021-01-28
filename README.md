@@ -9,7 +9,8 @@ We specifically investigated two deep generative modeling approaches, VAEs and D
 
 The data folder contains an R markdown file with a script to prepare the Segerstolpe data. We also write the gene names and cluster labels into separate files.
 
-* data_preparation.Rmd
+* data_preparation_segerstolpe.Rmd
+* data_preparation_PBMC.Rmd
 * segerstolpe_gene_names.csv
 * segerstolpe_hvg.csv
 * segerstolpe_hvg_clustering.csv
