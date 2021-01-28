@@ -21,9 +21,11 @@ The pluto_notebook folder contains Pluto notebooks for the analyses of the Seger
 * scDBM_notebook.jl
 * supplement_scDBM_notebook.jl
 
+To run the notebooks, use the following command and then select the appropriate notebook in the browser.
+
 ```{julia}
-import Pluto
-Pluto.run()
+julia> import Pluto
+julia> Pluto.run()
 ```
 
 ## Plotting  
