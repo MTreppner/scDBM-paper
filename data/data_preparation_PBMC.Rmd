@@ -1,0 +1,162 @@
+---
+title: "Synthetic Single-Cell RNA-Sequencing Data from Small Pilot Studies using Deep Generative Models"
+subtitle: "Data Preparation - PBMC"
+author:
+- name: Martin Treppner
+  affiliation: Institute of Medical Biometry and Statistics, Faculty of Medicine and Medical Center - University of Freiburg
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+vignette: >
+output:
+  BiocStyle::html_document:
+    number_sections: yes
+    toc: true
+    toc_depth: 2
+---
+
+```{r}
+library(TENxPBMCData, Seurat)
+pbmc4k <- TENxPBMCData('pbmc4k')
+```
+
+```{r}
+library(SingleCellExperiment)
+counts <- matrix(rpois(100, lambda = 10), ncol=10, nrow=10)
+sce <- SingleCellExperiment(assays = list(counts = counts))
+sce
+```
+
+```{r}
+unfiltered <- pbmc4k
+
+is.mito <- grep("MT", rowData(pbmc4k)$Symbol_TENx)
+
+library(scater)
+stats <- perCellQCMetrics(pbmc4k, subsets=list(Mito=is.mito))
+high.mito <- isOutlier(stats$subsets_Mito_percent, type="higher")
+pbmc4k <- pbmc4k[,!high.mito]
+```
+
+# Normalization  
+```{r}
+pbmc4k <- logNormCounts(pbmc4k)
+```
+
+# Variance Modelling  
+```{r}
+library(scran)
+dec4k <- modelGeneVar(pbmc4k)
+chosen.hvgs <- getTopHVGs(dec4k, prop=0.1)
+```
+
+# Extract highly variable genes (HVG)  
+ 
+```{r, include=TRUE}
+# Select 1000 HVG
+pbmc4k_hvg <- pbmc4k[chosen.hvgs[1:1000],]
+```
+
+# Save count data to csv file
+
+```{r}
+data <- counts(pbmc4k_hvg)
+rownames(data) <- rowData(pbmc4k_hvg)$Symbol
+write.csv(data, file="/Users/martintreppner/Desktop/notebook_test/PBMC_hvg.csv")
+```
+
+# Dimensionality reduction  
+```{r}
+set.seed(10000)
+pbmc4k <- runPCA(pbmc4k, subset_row=chosen.hvgs[1:1000], ncomponents=50,
+    BSPARAM=BiocSingular::RandomParam())
+
+set.seed(100000)
+pbmc4k <- runTSNE(pbmc4k, dimred="PCA")
+
+set.seed(1000000)
+pbmc4k <- runUMAP(pbmc4k, dimred="PCA")
+```
+
+# Clustering  
+```{r}
+g <- buildSNNGraph(pbmc4k, k=10, use.dimred = 'PCA')
+clust <- igraph::cluster_walktrap(g)$membership
+pbmc4k$cluster <- factor(clust)
+```
+
+# Seurat clustering analysis  
+
+```{r}
+library(org.Hs.eg.db)
+symbols <- mapIds(org.Hs.eg.db, keys=rownames(pbmc4k_hvg), keytype="ENSEMBL", column="SYMBOL")
+anno <- data.frame(ENSEMBL=rownames(pbmc4k_hvg), SYMBOL=symbols, stringsAsFactors=FALSE)
+head(anno)
+anno$SYMBOL[is.na(anno$SYMBOL)]  <- "TEST"
+rownames(pbmc4k_hvg) <- anno$SYMBOL
+```
+
+```{r}
+library(Seurat)
+colnames(pbmc4k_hvg) <- paste("Cell",seq(1:ncol(counts(pbmc4k_hvg))), sep="")
+sce_hvg.seurat <- CreateSeuratObject(counts(pbmc4k_hvg), project = "PBMC4k")
+```
+
+Convert SingleCellExperiment object into Seurat object.
+
+```{r}
+library(Seurat)
+colnames(pbmc4k_hvg) <- paste("Cell",seq(1:ncol(counts(pbmc4k_hvg))), sep="")
+sce_hvg.seurat <- Seurat::as.Seurat(x = pbmc4k_hvg)
+```
+
+Scaling data before running PCA.
+
+```{r}
+all.genes <- rownames(sce_hvg.seurat)
+sce_hvg.seurat <- ScaleData(sce_hvg.seurat, features = all.genes)
+```
+
+Run PCA on Seurat object.
+
+```{r}
+sce_hvg.seurat <- RunPCA(sce_hvg.seurat, npcs = 50, features = rownames(sce_hvg.seurat))
+```
+
+```{r}
+VizDimLoadings(sce_hvg.seurat, dims = 1:2, reduction = "pca")
+```
+
+
+```{r}
+sce_hvg.seurat <- JackStraw(sce_hvg.seurat, num.replicate = 100, dims = 50)
+sce_hvg.seurat <- ScoreJackStraw(sce_hvg.seurat, dims = 1:50)
+```
+
+First 8 to 9 PCs have significant p-values.
+
+```{r}
+JackStrawPlot(sce_hvg.seurat, dims = 1:50, xmax = 1.0, ymax = 1.0)
+```
+
+```{r}
+ElbowPlot(sce_hvg.seurat, ndims = 50, reduction = "pca")
+```
+
+# Cluster the cells  
+
+```{r}
+sce_hvg.seurat <- FindNeighbors(sce_hvg.seurat, dims = 1:50)
+```
+
+```{r}
+sce_hvg.seurat <- FindClusters(sce_hvg.seurat, resolution = 0.4, algorithm = 1)
+```
+
+```{r}
+head(Idents(sce_hvg.seurat), 5)
+levels(Idents(sce_hvg.seurat)) <- c("1","2","3","4","5","6","7","8","9","10")
+```
+
+Save Clustering
+```{r}
+write.csv(Idents(sce_hvg.seurat), file = "/Users/martintreppner/Desktop/notebook_test/PBMC_hvg_clustering.csv")
+```

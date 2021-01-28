@@ -1,5 +1,6 @@
 ---
-title: "Synthetic Single-Cell RNA-Sequencing Data from Small Pilot Studies using Deep Generative Models - Data Preparation"
+title: "Synthetic Single-Cell RNA-Sequencing Data from Small Pilot Studies using Deep Generative Models"
+subtitle: "Data Preparation - Segerstolpe"
 author:
 - name: Martin Treppner
   affiliation: Institute of Medical Biometry and Statistics, Faculty of Medicine and Medical Center - University of Freiburg
@@ -10,7 +11,6 @@ output:
     number_sections: yes
     toc: true
     toc_depth: 2
-    bibliography: bibliography.bib
 ---
 
 # Loading data using Bioconductor  
